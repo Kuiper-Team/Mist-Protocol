@@ -1,0 +1,135 @@
+\documentclass{article}
+
+\usepackage{indentfirst}
+\usepackage{listings}
+
+\title{The Mist Protocol Specification Version 1}
+\author{Nihat Özkurt\\email@here}
+\date{Not yet released}
+
+\begin{document}
+
+\pagenumbering{gobble}
+\maketitle
+
+\newpage
+\pagenumbering{roman}
+\tableofcontents
+
+\newpage
+\pagenumbering{arabic}
+
+\section{Preliminaries}
+
+\subsection{Introduction}
+The Mist Protocol is a decentralized and end-to-end encrypted messaging plaform protocol designed to empower user autonomy over third party custody, built on top of many other proven standards. It strictly defines the workflows of identities, structural hierarchy, text messaging, voice messaging and video messaging. Moreover, the protocol prioritizes security, user privacy and ease of use.
+
+\subsection{Threat Model}
+%WIP
+
+\subsection{Data Serialization}
+This document utilizes ASN.1 interface description language for defining data structures. (https://www.itu.int/dms\_pub/itu-t/oth/0B/04/T0B040000492C01PDFE.pdf, https://www.itu.int/en/ITU-T/asn1/Pages/asn1\_project.aspx)
+
+Schemas written in ASN.1 are then encoded using DER (as defined in X.690 ITU-T standard) by the protocol to create a serialized payload. The payloads are used mainly for the network layer, offering seamless transport.
+
+All serialized payloads must have a version field with the type \verb|INTEGER| as their first fields. This is to prevent breakage on any protocol revision. For example, a Mist Protocol implementation migrating to a newer version of the protocol, where some serialization schemas has changed, might parse an older serialized payload incorrectly.
+
+\subsection{Human-Readable Representation}
+The Mist Protocol mainly utilizes Bech32m (BIP 350) for human-readable representation of data. These include cryptographic keys and other binary data.
+
+\subsection{Notation}
+%WIP
+
+\subsection{Extension Standards}
+Extension standards are specifications meant to enrich applicatons that use the Mist Protocol, by introducing additional features. These standards are not part of the protocol, therefore optional. For example, a project that uses the protocol may refuse to integrate a certain extension standard while implementing the Mist Protocol as-is.
+
+
+\section{Identities}
+Identity is a concept in the Mist Protocol representing a user.
+Every identity has a single, unique and immutable Ed25519 key pair. This key pair governs the identity as it's used to sign the public keys of other key pairs owned by the user to authenticate ownership.
+
+Compared with many modern messaging apps in which custodial \textit{accounts} define a user, Mist Protocol identities are stored and managed locally, aligned with the philosophy of the protocol. That way, identities retain a freedom that no external entity can revoke unless the system is compromised.
+
+\subsection{Mist IDs}
+A Mist ID is defined as an identity public key as a Bech32m-encoded string whose HRP is \texttt{mist}. This string is the default human-readable representation of the identity public key.
+
+The reason for choosing this undescriptive HRP is the indication that an identity is central to the protocol and that it provides compactness and simplicity.
+
+\subsection{Subkeys}
+
+\subsubsection{Deterministically Generated Subkeys}
+%WIP
+
+\subsubsection{Randomly Generated Subkeys}
+%WIP
+
+\subsection{Contacts}
+The concept of a contact in the Mist Protocol refers to a data structure that stores necessary information about other identities. These include the Mist ID, some public keys used by the protocol often along with their identifiers and signatures, a label and a memo. The ASN.1 model below defines a contact.
+\begin{lstlisting}
+Contact ::= SEQUENCE {
+	mistID IA5String
+}
+\end{lstlisting}
+
+For information about \verb|spk|, \verb|spk_identifier|, \verb|spk_signature|, \verb|pqspk|, \verb|pqspk_identifier| and \verb|pqspk_signature|; refer to \ref{4_4_3}.
+%WIP
+
+Contacts are analogous to \textit{friends} present in many modern messaging platforms. While functionally similar, they are closer to contact lists used in smartphones, hence the name.
+
+\subsubsection{Contact Blocks}
+
+
+\section{Platform Structure}
+
+\subsection{Instances}
+
+\subsection{Channels}
+
+\subsection{Rooms}
+
+
+\section{Text Messaging}
+
+\subsection{Format}
+
+\subsection{Editing Messages}
+
+\subsection{Deleting Messages}
+
+\subsection{End-to-End Encryption in DM Channels}
+
+\subsubsection{Overview}
+
+\subsubsection{Parameters}
+
+\subsubsection{Initialization} \label{4_4_3}
+
+\subsection{End-to-End Encryption in Room Channels}
+
+\subsubsection{Overview}
+
+\subsubsection{Parameters}
+
+
+\section{Voice and Video Messaging}
+
+
+\section{Closing Remarks}
+
+\subsection{Security Considerations}
+
+
+\subsection{Reference Implementations}
+
+\subsection{Inspirations}
+
+
+\section{Appendices}
+
+\subsection{List of Protocol Constants}
+
+\subsection{List of HRPs for Bech32m}
+
+\subsection{List of Text Message Flags}
+
+\end{document}
