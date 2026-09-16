@@ -1,5 +1,6 @@
 \documentclass{article}
 
+\usepackage{bookmark}
 \usepackage{indentfirst}
 \usepackage{listings}
 
@@ -22,7 +23,7 @@
 \section{Preliminaries}
 
 \subsection{Introduction}
-The Mist Protocol is a decentralized and end-to-end encrypted messaging plaform protocol designed to empower user autonomy over third party custody, built on top of many other proven standards. It strictly defines the workflows of identities, structural hierarchy, text messaging, voice messaging and video messaging. Moreover, the protocol prioritizes security, user privacy and ease of use.
+The Mist Protocol is a decentralized and end-to-end encrypted messaging plaform protocol designed to empower user autonomy over third party custody, built on top of many other proven standards. It strictly defines the workflows of identities, structural hierarchy, text messaging, voice communication and video conferencing. Moreover, the protocol prioritizes security, user privacy and ease of use.
 
 \subsection{Threat Model}
 %WIP
@@ -30,12 +31,18 @@ The Mist Protocol is a decentralized and end-to-end encrypted messaging plaform 
 \subsection{Data Serialization}
 This document utilizes ASN.1 interface description language for defining data structures. (https://www.itu.int/dms\_pub/itu-t/oth/0B/04/T0B040000492C01PDFE.pdf, https://www.itu.int/en/ITU-T/asn1/Pages/asn1\_project.aspx)
 
-Schemas written in ASN.1 are then encoded using DER (as defined in X.690 ITU-T standard) by the protocol to create a serialized payload. The payloads are used mainly for the network layer, offering seamless transport.
+Schemas written in ASN.1 are encoded and decoded using OER (as defined in ITU X.696) by the protocol to create a serialized payload. The payloads are used mainly for transport, both out of band and in the network layer.
 
-All serialized payloads must have a version field with the type \verb|INTEGER| as their first fields. This is to prevent breakage on any protocol revision. For example, a Mist Protocol implementation migrating to a newer version of the protocol, where some serialization schemas has changed, might parse an older serialized payload incorrectly.
+All serialized payloads must have a version field with the type \verb|INTEGER| as their first fields. This is to prevent breakage on any protocol revision. For example, a Mist Protocol implementation migrating to a newer version of the protocol, where some serialization schemas has changed, might parse an older serialized payload incorrectly. The field value for this version is \verb|1|.
 
-\subsection{Human-Readable Representation}
-The Mist Protocol mainly utilizes Bech32m (BIP 350) for human-readable representation of data. These include cryptographic keys and other binary data.
+Likewise, the second field of the payloads must contain the schema identifier as an \verb|INTEGER|, since OER doesn't provide tag information. This ensures that the receiving party decodes and uses the data correctly.
+
+\subsection{Encoding}
+All strings in the Mist Protocol is encoded in UTF-8.
+
+For human-readable representation of binary data, the protocol uses Bech32m (from BIP 350). This is mainly used for cryptographic keys and not arbitrary-length data.
+
+For arbitrary-length data, however, the Mist Protocol doesn't strictly define an encoding. Therefore, they can be shown as QR codes, Base64-encoded strings an so on.
 
 \subsection{Notation}
 %WIP
@@ -45,43 +52,49 @@ Extension standards are specifications meant to enrich applicatons that use the 
 
 
 \section{Identities}
-Identity is a concept in the Mist Protocol representing a user.
-Every identity has a single, unique and immutable Ed25519 key pair. This key pair governs the identity as it's used to sign the public keys of other key pairs owned by the user to authenticate ownership.
+Identity is a concept in the Mist Protocol representing a user. Every identity has a single, unique and immutable Ed25519 key pair. This key pair governs the identity by signing other public keys by the user to authenticate ownership.
 
 Compared with many modern messaging apps in which custodial \textit{accounts} define a user, Mist Protocol identities are stored and managed locally, aligned with the philosophy of the protocol. That way, identities retain a freedom that no external entity can revoke unless the system is compromised.
 
-\subsection{Mist IDs}
-A Mist ID is defined as an identity public key as a Bech32m-encoded string whose HRP is \texttt{mist}. This string is the default human-readable representation of the identity public key.
+Identities can be shortened as Mist IDs.
 
-The reason for choosing this undescriptive HRP is the indication that an identity is central to the protocol and that it provides compactness and simplicity.
+\subsection{Addresses}
+A Mist address is defined as an identity public key encoded in Bech32m whose HRP is \verb|mist|. This string is the default human-readable representation of the identity public key.
+
+The reason for giving the shortest HRP to addresses is to emphasize that non-custodial identities are central to the protocol.
 
 \subsection{Subkeys}
+%WIP
+%Cite RFC 5869 for extract and expand functions.
 
 \subsubsection{Deterministically Generated Subkeys}
 %WIP
+%Explain the role of AD and context
 
 \subsubsection{Randomly Generated Subkeys}
 %WIP
+%Explain the role of AD and context
 
 \subsection{Contacts}
-The concept of a contact in the Mist Protocol refers to a data structure that stores necessary information about other identities. These include the Mist ID, some public keys used by the protocol often along with their identifiers and signatures, a label and a memo. The ASN.1 model below defines a contact.
+The concept of a contact in the Mist Protocol refers to a data structure that stores necessary information about other identities. A contact is comprised of a Mist address, a label, a memo, a list of preferred instances and a prekey bundle that's used to initiate communication via PQXDH. For information about \verb|prekey-bundle| and \verb|preferred-instances|, refer to \ref{4_4_3} \ref{3_1} respectively. The ASN.1 sequence below defines the contact data structure.
+
 \begin{lstlisting}
 Contact ::= SEQUENCE {
-	mistID IA5String
+	version INTEGER,
+	schema INTEGER,
+
+	label UTF8String,
+	memo UTF8String,
+	preferred-instances SEQUENCE OF UTF8String,
+	prekey-bundle Recipient-Prekey-Bundle
 }
 \end{lstlisting}
 
-For information about \verb|spk|, \verb|spk_identifier|, \verb|spk_signature|, \verb|pqspk|, \verb|pqspk_identifier| and \verb|pqspk_signature|; refer to \ref{4_4_3}.
-%WIP
-
 Contacts are analogous to \textit{friends} present in many modern messaging platforms. While functionally similar, they are closer to contact lists used in smartphones, hence the name.
-
-\subsubsection{Contact Blocks}
-
 
 \section{Platform Structure}
 
-\subsection{Instances}
+\subsection{Instances} \label{3_1}
 
 \subsection{Channels}
 
@@ -114,7 +127,7 @@ Contacts are analogous to \textit{friends} present in many modern messaging plat
 \section{Voice and Video Messaging}
 
 
-\section{Closing Remarks}
+\section{Conclusion}
 
 \subsection{Security Considerations}
 
