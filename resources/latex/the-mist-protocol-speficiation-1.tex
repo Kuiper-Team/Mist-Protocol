@@ -1,5 +1,6 @@
 \documentclass{article}
 
+\usepackage[hidelinks]{hyperref}
 \usepackage{bookmark}
 \usepackage{indentfirst}
 \usepackage{listings}
@@ -28,6 +29,9 @@ The Mist Protocol is a decentralized and end-to-end encrypted messaging plaform 
 \subsection{Threat Model}
 %WIP
 
+\subsection{Notation}
+%WIP
+
 \subsection{Data Serialization}
 This document utilizes ASN.1 interface description language for defining data structures. (https://www.itu.int/dms\_pub/itu-t/oth/0B/04/T0B040000492C01PDFE.pdf, https://www.itu.int/en/ITU-T/asn1/Pages/asn1\_project.aspx)
 
@@ -42,9 +46,9 @@ All strings in the Mist Protocol is encoded in UTF-8.
 
 For human-readable representation of binary data, the protocol uses Bech32m (from BIP 350). This is mainly used for cryptographic keys and not arbitrary-length data.
 
-For arbitrary-length data, however, the Mist Protocol doesn't strictly define an encoding. Therefore, they can be shown as QR codes, Base64-encoded strings an so on.
+For arbitrary-length data, however, the Mist Protocol doesn't strictly define an encoding. Therefore, they can be shown in the form of QR codes, Base64-encoded strings an so on.
 
-\subsection{Notation}
+\subsection{Transport}
 %WIP
 
 \subsection{Extension Standards}
@@ -64,19 +68,19 @@ A Mist address is defined as an identity public key encoded in Bech32m whose HRP
 The reason for giving the shortest HRP to addresses is to emphasize that non-custodial identities are central to the protocol.
 
 \subsection{Subkeys}
-%WIP
-%Cite RFC 5869 for extract and expand functions.
+%Cite RFC 5869 for HKDF.
+Subkeys are cryptographic keys or key pairs tied to a Mist identity. These can either be generated using a seed or using fresh entropy. Each subkey must have a unique identifier, such as a 32-bit unsigned integer assigned sequentially or even a hash.
 
-\subsubsection{Deterministically Generated Subkeys}
-%WIP
-%Explain the role of AD and context
+A sample workflow for generating an Ed25519 subkey is as follows. The Mist Protocol doesn't define a subkey generation process, so this serves as an example.
 
-\subsubsection{Randomly Generated Subkeys}
-%WIP
-%Explain the role of AD and context
+\begin{enumerate}
+	\item Let \verb|prk| be the output of HKDF \verb|Extract()| function, given the \verb|Hash| is SHA-512, \verb|salt| is not provided and \verb|IKM| is the deterministic seed value if the subkey is deterministically generated, or fresh entropy if not.
+	\item Let \verb|okm| be the output of HKDF \verb|Expand()| function, given the \verb|PRK| is \verb|prk|, \verb|info| is the subkey identifier and \verb|L| is 32 bytes.
+	\item Finally, the private key is \verb|okm|, and the public key is generated from there as specified in RFC 8032.
+\end{enumerate}
 
 \subsection{Contacts}
-The concept of a contact in the Mist Protocol refers to a data structure that stores necessary information about other identities. A contact is comprised of a Mist address, a label, a memo, a list of preferred instances and a prekey bundle that's used to initiate communication via PQXDH. For information about \verb|prekey-bundle| and \verb|preferred-instances|, refer to \ref{4_4_3} \ref{3_1} respectively. The ASN.1 sequence below defines the contact data structure.
+The concept of a contact in the Mist Protocol refers to a data structure that stores necessary information about other identities. A contact is comprised of a Mist address, a label, a memo, a list of preferred instances and a prekey bundle that's used to initiate communication via PQXDH. For information about \verb|prekey-bundle| and \verb|preferred-instances|, refer to \ref{4_4_3} and \ref{3_1} respectively. The ASN.1 sequence below defines the contact data structure.
 
 \begin{lstlisting}
 Contact ::= SEQUENCE {
